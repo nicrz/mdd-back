@@ -48,6 +48,7 @@ public class UserService implements UserDetailsService {
     }
 
     public Optional<User> getUserById(Integer id) {
+        // integer à la base
         return userRepository.findById(id);
     }
 
