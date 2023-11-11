@@ -7,7 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
@@ -24,13 +24,13 @@ import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import com.openclassrooms.mdd.model.Article;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
-@Table(name = "article")
+@Table(name = "comment")
 @EntityListeners(AuditingEntityListener.class)
 @Data
 @Accessors(chain = true)
@@ -39,35 +39,27 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Article {
+public class Comment {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Getter @Setter private Integer id;
 
-  @Size(max = 50)
-  @Column(nullable = false)
-  @Getter @Setter private String title;
-
-  @Size(max = 2000)
+  @Size(max = 1000)
   @Column(nullable = false)
   @Getter @Setter private String content;
+
+  @OneToOne
+  @JoinColumn(name = "user_id", referencedColumnName = "id")
+  @Getter @Setter private User user_id;
+
+  @ManyToOne
+  @JoinColumn(name = "article_id", referencedColumnName = "id")
+  @Getter @Setter private Article article;
 
   @CreatedDate
   @Column(name = "created_at", updatable = false)
   @Getter @Setter private Timestamp created_at;
-
-  @LastModifiedDate
-  @Column(name = "updated_at")
-  @Getter @Setter private Timestamp updated_at;
-
-  @OneToOne
-  @JoinColumn(name = "author_id", referencedColumnName = "id")
-  @Getter @Setter private User author_id;
-
-  @OneToOne
-  @JoinColumn(name = "theme_id", referencedColumnName = "id")
-  @Getter @Setter private Theme theme_id;
 
 }
 
