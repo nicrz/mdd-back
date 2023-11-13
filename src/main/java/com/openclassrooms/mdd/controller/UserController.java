@@ -2,6 +2,7 @@ package com.openclassrooms.mdd.controller;
 
 import com.openclassrooms.dto.LoginRequest;
 import com.openclassrooms.dto.RegisterRequest;
+import com.openclassrooms.mdd.exception.NotFoundException;
 import com.openclassrooms.mdd.model.User;
 import com.openclassrooms.mdd.responses.AuthSuccess;
 import com.openclassrooms.mdd.security.JwtTokenProvider;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -105,6 +107,29 @@ public class UserController {
     } catch (AuthenticationException e) {
         // Retourne une réponse 401 Unauthorized en cas d'erreur
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+}
+
+@PutMapping("/update/{userId}")
+@Operation(summary = "Update user information")
+@ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "User updated successfully"),
+    @ApiResponse(responseCode = "400", description = "Invalid request"),
+    @ApiResponse(responseCode = "404", description = "User not found")
+})
+public ResponseEntity<String> updateUser(@PathVariable Integer userId, @RequestBody RegisterRequest updatedUserRequest) {
+    try {
+        // Appelle la méthode du service pour mettre à jour l'utilisateur
+        userService.updateUser(userId, updatedUserRequest);
+
+        // Retourne une réponse 200 OK si la mise à jour est réussie
+        return ResponseEntity.ok("User updated successfully");
+    } catch (NotFoundException e) {
+        // Retourne une réponse 404 si l'utilisateur n'est pas trouvé
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    } catch (Exception e) {
+        // Retourne une réponse 400 en cas d'erreur
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 }
 

@@ -1,6 +1,7 @@
 package com.openclassrooms.mdd.service;
 
 import com.openclassrooms.dto.RegisterRequest;
+import com.openclassrooms.mdd.exception.NotFoundException;
 import com.openclassrooms.mdd.model.User;
 import com.openclassrooms.mdd.repository.UserRepository;
 
@@ -74,6 +75,25 @@ public class UserService implements UserDetailsService {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return authentication;
+    }
+
+    public User updateUser(Integer userId, RegisterRequest updatedUserRequest) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+    
+        if (optionalUser.isPresent()) {
+            User existingUser = optionalUser.get();
+    
+            // Met à jour les propriétés nécessaires
+            existingUser.setUsername(updatedUserRequest.getUsername());
+            existingUser.setEmail(updatedUserRequest.getEmail());
+            existingUser.setPassword(passwordEncoder.encode(updatedUserRequest.getPassword()));
+            
+            // Enregistre la mise à jour dans la base de données
+            return userRepository.save(existingUser);
+        } else {
+            // Gère le cas où l'utilisateur n'est pas trouvé
+            throw new NotFoundException("User not found with id: " + userId);
+        }
     }
 
 
