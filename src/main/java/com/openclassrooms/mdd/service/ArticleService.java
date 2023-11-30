@@ -75,4 +75,8 @@ public class ArticleService {
         return newArticle;
     }
 
+    public List<Article> findArticlesByUserThemes(Integer userId) {
+        return articleRepository.findArticlesByUserThemes(userId);
+    }
+
 }

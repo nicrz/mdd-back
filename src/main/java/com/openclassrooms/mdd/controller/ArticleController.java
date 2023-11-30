@@ -32,6 +32,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -81,6 +82,28 @@ public class ArticleController {
     // Retourne l'objet ThemesResponse dans la réponse
     return ResponseEntity.ok(articlesResponse);
 
+  }
+
+  @GetMapping("/user-feed")
+  @Operation(summary = "Show the list of posts based on user's subscribed themes")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Article.class))),
+      @ApiResponse(responseCode = "401", description = "Unauthorized")
+  })
+  public ResponseEntity<ArticlesResponse> getArticlesByUserThemes() {
+
+      // Récupérer l'ID de l'utilisateur identifié depuis le contexte de sécurité
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+      UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+      String email = userDetails.getUsername();
+      User user = userRepository.findByEmail(email);
+      Integer userId = user.getId();
+
+      List<Article> articles = articleService.findArticlesByUserThemes(userId);
+
+      ArticlesResponse articlesResponse = new ArticlesResponse(articles);
+
+      return ResponseEntity.ok(articlesResponse);
   }
 
   @GetMapping(path = "/detail/{id}")
