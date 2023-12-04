@@ -87,6 +87,8 @@ public class UserService implements UserDetailsService {
             existingUser.setUsername(updatedUserRequest.getUsername());
             existingUser.setEmail(updatedUserRequest.getEmail());
             existingUser.setPassword(passwordEncoder.encode(updatedUserRequest.getPassword()));
+
+            updateSecurityContext(updatedUserRequest.getEmail());
             
             // Enregistre la mise à jour dans la base de données
             return userRepository.save(existingUser);
@@ -94,6 +96,17 @@ public class UserService implements UserDetailsService {
             // Gère le cas où l'utilisateur n'est pas trouvé
             throw new NotFoundException("User not found with id: " + userId);
         }
+    }
+
+    private void updateSecurityContext(String newEmail) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = this.loadUserByUsername(newEmail);
+    
+        Authentication newAuthentication = new UsernamePasswordAuthenticationToken(
+                userDetails, authentication.getCredentials(), authentication.getAuthorities()
+        );
+    
+        SecurityContextHolder.getContext().setAuthentication(newAuthentication);
     }
 
 
